@@ -263,7 +263,7 @@ add_result() {
     local escaped_rem=$(echo "$remediation" | sed 's/"/\\"/g' | sed "s/'/\\\\'/g")
     local escaped_expl=$(echo "$explanation" | sed 's/"/\\"/g')
     local escaped_expl=$(echo "$explanation" | sed 's/"/\\"/g')
-    RESULTS+=("{\"category\":\"${category}\",\"name\":\"${name}\",\"status\":\"${status}\",\"message\":\"${escaped_msg}\",\"remediation\":\"${escaped_rem}\"}")
+    RESULTS+=("{\"category\":\"${category}\",\"name\":\"${name}\",\"status\":\"${status}\",\"message\":\"${escaped_msg}\",\"remediation\":\"${escaped_rem}\",\"explanation\":\"${escaped_expl}\"}")
 }
 
 # ── Helper: Print section ──
