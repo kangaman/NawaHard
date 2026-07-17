@@ -882,14 +882,17 @@ audit_services() {
         add_result "services" "Service Count" "PASS" "$running running"
     elif [[ "$running" -lt 40 ]]; then
         add_result "services" "Service Count" "WARN" "$running running"
+    rem "Review and disable unnecessary services"
     else
         add_result "services" "Service Count" "FAIL" "$running running (too many)"
+    rem "Audit and disable: systemctl disable --now <service>"
     fi
 
     # Dangerous services
     for svc in telnet rsh rlogin tftp xinetd avahi-daemon cups rpcbind; do
         systemctl is-active --quiet "$svc" 2>/dev/null && \
             { add_result "services" "Dangerous: $svc" "WARN" "Running"; rem "systemctl disable --now $svc"; }
+    rem "systemctl disable --now $svc"
     done
 
     # Docker
@@ -925,6 +928,7 @@ audit_ports() {
     for dport in 21 23 25 110 135 139 445 1433 1521 3306 3389 5432 5900 6379 27017; do
         echo "$ports" | grep -qw "$dport" && \
             { add_result "ports" "Port $dport" "WARN" "Exposed"; rem "ufw deny $dport"; }
+    rem "ufw deny $dport"
     done
 }
 
