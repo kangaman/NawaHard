@@ -154,14 +154,27 @@ get_explanation() {
         # System
         "OS Version") echo "Versi OS yang sedang berjalan" ;;
         "OS Support") echo "OS EOL tidak mendapat patch keamanan" ;;
+        "OS") echo "Informasi sistem operasi" ;;
         "Kernel") echo "Kernel rentan bisa dieksploitasi untuk root" ;;
         "Boot Loader") echo "Tanpa GRUB password, akses fisik bisa bypass" ;;
         "Package Integrity") echo "File modifikasi bisa menandakan kompromi" ;;
-        "ASLR") echo "Randomisasi memori menyulitkan exploit" ;;
+        "ASLR") echo "Randomisasi memori menyulitkan exploit buffer overflow" ;;
         "Core Dumps") echo "Core dump bisa berisi data sensitif" ;;
         "Time Sync") echo "Waktu tidak sinkron = masalah log & TLS" ;;
+        "Hostname") echo "Identitas server di jaringan" ;;
+        "Uptime") echo "Lama server berjalan tanpa reboot" ;;
+        "CPU") echo "Pemrosesan pusat server" ;;
+        "Memory") echo "RAM yang tersedia untuk aplikasi" ;;
+        "Disk") echo "Penyimpanan yang tersedia" ;;
+        "CPU Cores") echo "Jumlah core CPU" ;;
+        "Total Memory") echo "Total RAM sistem" ;;
+        "Total Disk") echo "Total kapasitas disk" ;;
+        "Public IP") echo "IP yang terlihat dari internet" ;;
+        "Private IP") echo "IP internal jaringan" ;;
+        "Load Average") echo "Rata-rata beban CPU" ;;
+
         # SSH
-        "Root Login") echo "Root langsung = riskan jika password bocor" ;;
+        "Root Login") echo "Akses root langsung memudahkan attacker" ;;
         "Password Auth") echo "Password bisa di-brute force" ;;
         "SSH Port") echo "Port 22 target utama scanner otomatis" ;;
         "Empty Passwords") echo "Akun tanpa password bisa diakses siapa saja" ;;
@@ -173,6 +186,9 @@ get_explanation() {
         "Host Key Perms") echo "Permission salah = key theft risk" ;;
         "Max Sessions") echo "Session berlebihan = potensi DoS" ;;
         "Login Banner") echo "Banner peringatan untuk kepatuhan hukum" ;;
+        "SSH Config") echo "Konfigurasi SSH daemon" ;;
+        "Protocol") echo "Versi protokol SSH" ;;
+
         # Firewall
         "UFW"|"Firewalld"|"nftables"|"Firewall") echo "Pertahanan pertama dari serangan jaringan" ;;
         "IP Forwarding") echo "IP forward aktif = pivot attack risk" ;;
@@ -182,8 +198,18 @@ get_explanation() {
         "Reverse Path") echo "Mencegah IP spoofing" ;;
         "Broadcast ICMP") echo "Bisa digunakan untuk smurf attack" ;;
         "IPv6 Redirects") echo "Bisa digunakan untuk MITM" ;;
+        "Send Redirects") echo "Server tidak boleh kirim redirect" ;;
+        "Default Redirects") echo "Redirect untuk interface default" ;;
+        "Default RP Filter") echo "Filter untuk interface default" ;;
+        "Log Martians") echo "Catat paket dari IP tidak valid" ;;
+        "TCP Timestamps") echo "Timestamp untuk deteksi paket duplikat" ;;
+        "Source Route") echo "Mencegah manipulasi jalur paket" ;;
+        "Ignore Broadcast") echo "Mencegah respons broadcast ICMP" ;;
+        "IPv6 Enabled") echo "Status IPv6 pada sistem" ;;
+
         # IPS
         "Fail2ban"|"CrowdSec"|"IPS") echo "Auto-blokir IP brute force" ;;
+
         # Auth
         "Failed Logins (24h)") echo "Banyak gagal = indikasi brute force" ;;
         "Sudo Logging") echo "Audit trail command root" ;;
@@ -191,36 +217,144 @@ get_explanation() {
         "Account Lockout") echo "Blokir akun setelah percobaan gagal" ;;
         "UID 0 Accounts") echo "Multiple UID 0 = backdoor root" ;;
         "SUID Files") echo "SUID tidak lazim = privilege escalation" ;;
+        "SGID Files") echo "SGID bisa untuk privilege escalation" ;;
+        "Empty Password") echo "Akun tanpa password = akses tanpa auth" ;;
+
+        # Kernel
+        "Reverse Path Filter") echo "Mencegah IP spoofing" ;;
+        "Kernel Pointers") echo "Menyembunyikan alamat kernel" ;;
+        "dmesg Restrict") echo "Mencegah user baca log kernel" ;;
+        "ptrace Scope") echo "Mencegah process injection" ;;
+        "Protected Hardlinks") echo "Mencegah symlink/hardlink attack" ;;
+        "Protected Symlinks") echo "Mencegah TOCTOU symlink attack" ;;
+        "SUID Core Dump") echo "Mencegah core dump dari program SUID" ;;
+        "Magic SysRq") echo "SysRq bisa untuk crash/reboot paksa" ;;
+        "Kernel Lockdown") echo "Mencegah modifikasi kernel runtime" ;;
+        "Unprivileged BPF") echo "BPF tanpa privilege = exploit risk" ;;
+        "User Namespaces") echo "Container escape risk" ;;
+        "perf_event") echo "Kernel profiling abuse risk" ;;
+
+        # Services
+        "Service Count") echo "Service berlebihan = attack surface besar" ;;
+        "Docker") echo "Docker menambah kompleksitas keamanan" ;;
+        "Dangerous: telnet") echo "Telnet tidak terenkripsi, sangat berbahaya" ;;
+        "Dangerous: rsh") echo "rsh tidak terenkripsi" ;;
+        "Dangerous: rlogin") echo "rlogin tidak terenkripsi" ;;
+        "Dangerous: tftp") echo "TFTP tanpa autentikasi" ;;
+        "Dangerous: xinetd") echo "xinetd bisa menjalankan service berbahaya" ;;
+        "Dangerous: avahi-daemon") echo "Avahi expose info jaringan" ;;
+        "Dangerous: cups") echo "CUPS bisa dieksploitasi jika tidak dipakai" ;;
+        "Dangerous: rpcbind") echo "RPCBind untuk NFS, riskan jika publik" ;;
+
+        # Ports
+        "Port Count") echo "Port terbuka berlebihan = risiko tinggi" ;;
+        "Listening Ports") echo "Daftar port yang sedang mendengarkan" ;;
+        "Port 21") echo "FTP mengirim password plaintext" ;;
+        "Port 23") echo "Telnet tidak terenkripsi" ;;
+        "Port 25") echo "SMTP bisa jadi spam relay" ;;
+        "Port 110") echo "POP3 tidak terenkripsi" ;;
+        "Port 135") echo "RPC target utama malware Windows" ;;
+        "Port 139") echo "NetBIOS = info disclosure" ;;
+        "Port 445") echo "SMB target utama ransomware" ;;
+        "Port 1433") echo "MSSQL terbuka = data breach risk" ;;
+        "Port 1521") echo "Oracle DB terbuka" ;;
+        "Port 3306") echo "MySQL terbuka bisa dieksploitasi" ;;
+        "Port 3389") echo "RDP target brute force" ;;
+        "Port 5432") echo "PostgreSQL terbuka" ;;
+        "Port 5900") echo "VNC terbuka = remote access risk" ;;
+        "Port 6379") echo "Redis tanpa password = data leak" ;;
+        "Port 27017") echo "MongoDB sering tanpa autentikasi" ;;
+
         # Resources
         "Disk") echo "Disk penuh = crash & data loss" ;;
         "Memory") echo "RAM penuh = swap & performa turun" ;;
-        "CPU") echo "CPU tinggi = kemungkinan crypto mining" ;;
+        "CPU Usage") echo "CPU tinggi = kemungkinan crypto mining" ;;
         "Swap") echo "Swap mencegah OOM killer" ;;
         "Inodes") echo "Inode habis = tidak bisa buat file baru" ;;
+
         # Updates
         "Reboot") echo "Kernel baru tidak aktif tanpa reboot" ;;
         "Pending") echo "Update menambal vulnerability diketahui" ;;
-        "Auto Updates") echo "Patch otomatis = keamanan selalu terbaru" ;;
+        "Auto Updates") echo "Patch otomatis = keamanan terbaru" ;;
+        "Pending Updates") echo "Update tersedia untuk diinstal" ;;
+        "Security Updates") echo "Patch keamanan kritis" ;;
+
         # Permissions
         "World-Writable /etc") echo "File writable = bisa dimodifikasi attacker" ;;
         "/etc/shadow") echo "Berisi hash password, harus terlindungi" ;;
         "/etc/passwd") echo "Info user, harus read-only" ;;
         "SUID in /tmp") echo "SUID di /tmp hampir pasti malware" ;;
+        "World-Writable") echo "File world-writable = modifikasi risk" ;;
+
         # Docker
         "Socket Perms") echo "Docker socket = akses root ke host" ;;
         "Root Containers") echo "Container root bisa escape ke host" ;;
         "Privileged Mode") echo "Privileged = akses penuh ke host" ;;
+        "Content Trust") echo "Verifikasi integritas image Docker" ;;
+        "Image Scan") echo "Scan image untuk vulnerability" ;;
+
+        # Cloud
+        "Detection") echo "Mengetahui environment cloud" ;;
+        "Provider") echo "Setiap cloud punya best practice berbeda" ;;
+        "IMDSv2") echo "IMDSv1 rentan SSRF attack" ;;
+        "Metadata Access") echo "Metadata bisa expose credentials" ;;
+
         # Logging
         "Syslog") echo "Centralized logging untuk audit" ;;
         "Audit Daemon") echo "Auditd catat semua aktivitas sistem" ;;
         "Journal") echo "Persistent = log tidak hilang setelah reboot" ;;
         "Log Rotation") echo "Mencegah disk penuh karena log" ;;
+        "Remote Logging") echo "Log remote = forensik jika server dikompromi" ;;
+
         # Misc
         "USB Storage") echo "USB bisa untuk exfiltrate data" ;;
         "File Integrity") echo "Deteksi perubahan file sistem" ;;
+        "Core Dump") echo "Core dump = info leak risk" ;;
+        "Banner") echo "Banner peringatan untuk kepatuhan" ;;
+        "NTP") echo "Time sync = log & TLS valid" ;;
+        "MOTD") echo "Message of the day" ;;
+        "Issue") echo "Login banner" ;;
+
+        # Kernel detailed
+        "Reverse Path Filter") echo "Mencegah IP spoofing" ;;
+        "Default RP Filter") echo "Filter untuk interface default" ;;
+        "Ignore Broadcast") echo "Mencegah smurf attack" ;;
+        "ICMP Redirects") echo "Bisa manipulasi routing" ;;
+        "Default Redirects") echo "Redirect untuk interface default" ;;
+        "IPv6 Redirects") echo "Bisa manipulasi routing IPv6" ;;
+        "Send Redirects") echo "Server tidak boleh kirim redirect" ;;
+        "Source Route") echo "Mencegah manipulasi jalur paket" ;;
+        "Log Martians") echo "Catat paket IP tidak valid" ;;
+        "SYN Cookies") echo "Proteksi dari SYN flood" ;;
+        "IPv6 Enabled") echo "Status IPv6" ;;
+        "ASLR") echo "Randomisasi layout memori" ;;
+        "Kernel Pointers") echo "Sembunyikan alamat kernel" ;;
+        "dmesg Restrict") echo "Batasi akses log kernel" ;;
+        "ptrace Scope") echo "Cegah process injection" ;;
+        "Protected Hardlinks") echo "Cegah hardlink attack" ;;
+        "Protected Symlinks") echo "Cegah symlink attack" ;;
+        "SUID Core Dump") echo "Cegah core dump SUID" ;;
+        "Magic SysRq") echo "SysRq bisa crash sistem" ;;
+        "TCP Timestamps") echo "Timestamp untuk deteksi duplikat" ;;
+        "Kernel Lockdown") echo "Integritas kernel" ;;
+        "Unprivileged BPF") echo "BPF exploit risk" ;;
+        "User Namespaces") echo "Container escape risk" ;;
+        "perf_event") echo "Profiling abuse risk" ;;
+        "Send Redirects") echo "Server tidak boleh kirim redirect" ;;
+        "Default Redirects") echo "Redirect interface default" ;;
+        "IPv6 Redirects") echo "Manipulasi routing IPv6" ;;
+        "Source Route") echo "Manipulasi jalur paket" ;;
+        "Log Martians") echo "Catat IP tidak valid" ;;
+        "TCP Timestamps") echo "Deteksi duplikat" ;;
+        "Kernel Lockdown") echo "Integritas kernel" ;;
+        "Unprivileged BPF") echo "BPF exploit risk" ;;
+        "User Namespaces") echo "Container escape" ;;
+        "perf_event") echo "Profiling abuse" ;;
+
         *) echo "" ;;
     esac
 }
+
 
 # ── Helper: Add result ──
 add_result() {
@@ -337,6 +471,7 @@ audit_system() {
             add_result "system" "Package Integrity" "PASS" "All packages verified"
         else
             add_result "system" "Package Integrity" "WARN" "$modified modified files"
+    rem "Verify: debsums -c"
         fi
     elif command -v rpm &>/dev/null; then
         local modified=$(rpm -Va 2>/dev/null | grep "^..5" | wc -l | xargs)
@@ -344,6 +479,7 @@ audit_system() {
             add_result "system" "Package Integrity" "PASS" "All packages verified"
         else
             add_result "system" "Package Integrity" "WARN" "$modified modified files"
+    rem "Verify: debsums -c"
         fi
     else
         add_result "system" "Package Integrity" "SKIP" "No verification tool"
@@ -537,6 +673,7 @@ audit_firewall() {
             add_result "firewall" "nftables" "PASS" "Rules active"
         else
             add_result "firewall" "nftables" "FAIL" "No rules"
+    rem "Configure nftables rules"
         fi
     fi
     if [[ "$fw_found" -eq 0 ]]; then
@@ -548,36 +685,43 @@ audit_firewall() {
     local fwd=$(get_sysctl net.ipv4.ip_forward)
     [[ "$fwd" == "0" ]] && add_result "firewall" "IP Forwarding" "PASS" "Disabled" \
                          || add_result "firewall" "IP Forwarding" "WARN" "Enabled"
+    rem "sysctl -w net.ipv4.ip_forward=0"
 
     # ICMP redirects
     local icmp=$(get_sysctl net.ipv4.conf.all.accept_redirects)
     [[ "$icmp" == "0" ]] && add_result "firewall" "ICMP Redirects" "PASS" "Rejected" \
                           || { add_result "firewall" "ICMP Redirects" "WARN" "Accepted"; rem "sysctl -w net.ipv4.conf.all.accept_redirects=0"; }
+    rem "sysctl -w net.ipv4.conf.all.accept_redirects=0"
 
     # Source routing
     local src=$(get_sysctl net.ipv4.conf.all.accept_source_route)
     [[ "$src" == "0" ]] && add_result "firewall" "Source Routing" "PASS" "Disabled" \
                          || { add_result "firewall" "Source Routing" "WARN" "Enabled"; rem "sysctl -w net.ipv4.conf.all.accept_source_route=0"; }
+    rem "sysctl -w net.ipv4.conf.all.accept_source_route=0"
 
     # SYN cookies
     local syn=$(get_sysctl net.ipv4.tcp_syncookies)
     [[ "$syn" == "1" ]] && add_result "firewall" "SYN Cookies" "PASS" "Enabled" \
                          || { add_result "firewall" "SYN Cookies" "FAIL" "Disabled"; rem "sysctl -w net.ipv4.tcp_syncookies=1"; }
+    rem "sysctl -w net.ipv4.tcp_syncookies=1"
 
     # Reverse path
     local rp=$(get_sysctl net.ipv4.conf.all.rp_filter)
     [[ "$rp" == "1" ]] && add_result "firewall" "Reverse Path" "PASS" "Enabled" \
                          || { add_result "firewall" "Reverse Path" "WARN" "Disabled"; rem "sysctl -w net.ipv4.conf.all.rp_filter=1"; }
+    rem "sysctl -w net.ipv4.conf.all.rp_filter=1"
 
     # Broadcast ICMP
     local bcast=$(get_sysctl net.ipv4.icmp_echo_ignore_broadcasts)
     [[ "$bcast" == "1" ]] && add_result "firewall" "Broadcast ICMP" "PASS" "Ignored" \
                            || { add_result "firewall" "Broadcast ICMP" "WARN" "Not ignored"; rem "sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1"; }
+    rem "sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1"
 
     # IPv6 redirects
     local icmp6=$(get_sysctl net.ipv6.conf.all.accept_redirects)
     [[ "$icmp6" == "0" ]] && add_result "firewall" "IPv6 Redirects" "PASS" "Rejected" \
                            || add_result "firewall" "IPv6 Redirects" "WARN" "Accepted"
+    rem "sysctl -w net.ipv6.conf.all.accept_redirects=0"
 }
 
 # ──4. INTRUSION PREVENTION ──
@@ -604,9 +748,11 @@ audit_ips() {
         systemctl is-active --quiet crowdsec 2>/dev/null && \
             add_result "ips" "CrowdSec" "PASS" "Active" || \
             add_result "ips" "CrowdSec" "FAIL" "Not running"
+    rem "systemctl enable --now crowdsec"
     fi
 
     [[ "$found" -eq 0 ]] && { add_result "ips" "IPS" "FAIL" "No IPS installed"; rem "apt install fail2ban"; }
+    rem "apt install fail2ban && systemctl enable --now fail2ban"
 }
 
 # ──5. AUTHENTICATION ──
@@ -625,6 +771,7 @@ audit_auth() {
         add_result "auth" "Failed Logins (24h)" "PASS" "$failed attempts"
     elif [[ "$failed" -lt 50 ]]; then
         add_result "auth" "Failed Logins (24h)" "WARN" "$failed attempts"
+    rem "Install fail2ban and configure SSH jail"
     else
         add_result "auth" "Failed Logins (24h)" "FAIL" "$failed — brute force!"
         rem "Install fail2ban immediately"
@@ -634,14 +781,17 @@ audit_auth() {
     grep -q "Defaults.*logfile" /etc/sudoers 2>/dev/null && \
         add_result "auth" "Sudo Logging" "PASS" "Enabled" || \
         { add_result "auth" "Sudo Logging" "FAIL" "Disabled"; rem "Add 'Defaults logfile=/var/log/sudo.log'"; }
+    rem "Add 'Defaults logfile=/var/log/sudo.log' to /etc/sudoers"
 
     # Password policy
     if [[ -f /etc/security/pwquality.conf ]]; then
         local minlen=$(grep -oP 'minlen\s*=\s*\K\d+' /etc/security/pwquality.conf 2>/dev/null || echo "0")
         [[ "$minlen" -ge 12 ]] && add_result "auth" "Password Policy" "PASS" "Min length: $minlen" \
                                 || { add_result "auth" "Password Policy" "WARN" "Min length: $minlen"; rem "Set 'minlen = 14'"; }
+    rem "Set 'minlen = 14' in /etc/security/pwquality.conf"
     else
         add_result "auth" "Password Policy" "FAIL" "Not configured"
+    rem "Set 'minlen = 14' in /etc/security/pwquality.conf"
     fi
 
     # Account lockout
@@ -650,6 +800,7 @@ audit_auth() {
         [[ "$deny" -gt 0 ]] && [[ "$deny" -le 5 ]] && \
             add_result "auth" "Account Lockout" "PASS" "After $deny attempts" || \
             add_result "auth" "Account Lockout" "WARN" "Not configured"
+    rem "Configure /etc/security/faillock.conf"
     fi
 
     # UID 0 accounts
@@ -665,6 +816,7 @@ audit_auth() {
     local empty=$(awk -F: '($2 == "" || $2 == "!") && $1 != "root" {print $1}' /etc/shadow 2>/dev/null | wc -l | xargs)
     [[ "$empty" -eq 0 ]] && add_result "auth" "Empty Passwords" "PASS" "None found" \
                           || { add_result "auth" "Empty Passwords" "FAIL" "$empty accounts"; rem "Set passwords or lock accounts"; }
+    rem "Set 'PermitEmptyPasswords no'"
 
     # SUID files
     # Fast SUID check - only check common locations
@@ -677,6 +829,7 @@ audit_auth() {
     done
     [[ "$suid" -eq 0 ]] && add_result "auth" "SUID Files" "PASS" "No unusual SUID" \
                          || add_result "auth" "SUID Files" "WARN" "$suid unusual SUID files"
+    rem "Review: find / -type f -perm -4000"
 }
 
 # ──6. KERNEL HARDENING ──
@@ -765,7 +918,9 @@ audit_ports() {
 
     [[ "$port_count" -lt 10 ]] && add_result "ports" "Port Count" "PASS" "$port_count: $port_list" || \
     [[ "$port_count" -lt 20 ]] && add_result "ports" "Port Count" "WARN" "$port_count open" || \
+    rem "Review and close unnecessary ports"
                                   add_result "ports" "Port Count" "FAIL" "$port_count open"
+    rem "Review and close unnecessary ports"
 
     for dport in 21 23 25 110 135 139 445 1433 1521 3306 3389 5432 5900 6379 27017; do
         echo "$ports" | grep -qw "$dport" && \
@@ -782,29 +937,36 @@ audit_resources() {
     [[ "$disk" -lt 50 ]] && add_result "resources" "Disk" "PASS" "${disk}%" || \
     [[ "$disk" -lt 80 ]] && { add_result "resources" "Disk" "WARN" "${disk}%"; rem "apt autoremove"; } || \
                             { add_result "resources" "Disk" "FAIL" "${disk}% CRITICAL"; rem "Clean up immediately"; }
+    rem "apt autoremove && journalctl --vacuum-size=500M"
 
     # Memory
     local mem=$(free 2>/dev/null | awk '/^Mem:/ {printf "%.0f", $3/$2*100}')
     [[ "$mem" -lt 50 ]] && add_result "resources" "Memory" "PASS" "${mem}%" || \
     [[ "$mem" -lt 80 ]] && add_result "resources" "Memory" "WARN" "${mem}%" || \
+    rem "Check: ps aux --sort=-%mem | head"
                           add_result "resources" "Memory" "FAIL" "${mem}% CRITICAL"
+    rem "Check: ps aux --sort=-%mem | head"
 
     # CPU
     local cpu=$(top -bn1 2>/dev/null | grep "Cpu(s)" | awk '{printf "%.0f", $2}')
     [[ "$cpu" -lt 50 ]] && add_result "resources" "CPU" "PASS" "${cpu}%" || \
     [[ "$cpu" -lt 80 ]] && add_result "resources" "CPU" "WARN" "${cpu}%" || \
+    rem "Check: ps aux --sort=-%cpu | head"
                           add_result "resources" "CPU" "FAIL" "${cpu}%"
+    rem "Check: ps aux --sort=-%cpu | head"
 
     # Swap
     local swap=$(free -h 2>/dev/null | awk '/^Swap:/ {print $2}')
     [[ "$swap" == "0B" ]] || [[ "$swap" == "0" ]] && \
         { add_result "resources" "Swap" "WARN" "Not configured"; rem "fallocate -l 2G /swapfile"; } || \
+    rem "fallocate -l 2G /swapfile && mkswap /swapfile && swapon /swapfile"
         add_result "resources" "Swap" "INFO" "$swap"
 
     # Inodes
     local inode=$(df -i / 2>/dev/null | awk 'NR==2 {gsub(/%/,""); print $5}')
     [[ "$inode" -lt 80 ]] && add_result "resources" "Inodes" "PASS" "${inode}%" || \
                               add_result "resources" "Inodes" "FAIL" "${inode}%"
+    rem "Find and delete unnecessary files"
 }
 
 # ──10. UPDATES ──
@@ -813,18 +975,22 @@ audit_updates() {
 
     [[ -f /var/run/reboot-required ]] && \
         add_result "updates" "Reboot" "WARN" "Required" || \
+    rem "Reboot at earliest maintenance window"
         add_result "updates" "Reboot" "PASS" "Not needed"
 
     local updates=$(apt-get -s upgrade 2>/dev/null | grep -P '^\d+ upgraded' | cut -d' ' -f1 || echo "0")
     [[ "$updates" -eq 0 ]] && add_result "updates" "Pending" "PASS" "Up to date" || \
                               { add_result "updates" "Pending" "WARN" "$updates available"; rem "apt update && apt upgrade -y"; }
+    rem "apt update && apt upgrade -y"
 
     if dpkg -l 2>/dev/null | grep -q "unattended-upgrades"; then
         systemctl is-active --quiet unattended-upgrades 2>/dev/null && \
             add_result "updates" "Auto Updates" "PASS" "Active" || \
             add_result "updates" "Auto Updates" "WARN" "Not running"
+    rem "apt install unattended-upgrades"
     else
         add_result "updates" "Auto Updates" "WARN" "Not installed"
+    rem "apt install unattended-upgrades"
     fi
 }
 
@@ -835,18 +1001,22 @@ audit_permissions() {
     local ww=$(find /etc -type f -perm -002 2>/dev/null | wc -l | xargs)
     [[ "$ww" -eq 0 ]] && add_result "perms" "World-Writable /etc" "PASS" "None" || \
                          { add_result "perms" "World-Writable /etc" "FAIL" "$ww files"; rem "find /etc -type f -perm -002 -exec chmod o-w {} +"; }
+    rem "find /etc -type f -perm -002 -exec chmod o-w {} +"
 
     local shadow=$(stat -c "%a" /etc/shadow 2>/dev/null || echo "?")
     [[ "$shadow" =~ ^(640|600)$ ]] && add_result "perms" "/etc/shadow" "PASS" "$shadow" || \
                                       { add_result "perms" "/etc/shadow" "FAIL" "$shadow"; rem "chmod 640 /etc/shadow"; }
+    rem "chmod 640 /etc/shadow"
 
     local passwd=$(stat -c "%a" /etc/passwd 2>/dev/null || echo "?")
     [[ "$passwd" == "644" ]] && add_result "perms" "/etc/passwd" "PASS" "644" || \
                                 add_result "perms" "/etc/passwd" "WARN" "$passwd"
+    rem "chmod 644 /etc/passwd"
 
     local tmp_suid=$(find /tmp /var/tmp -type f \( -perm -4000 -o -perm -2000 \) 2>/dev/null | wc -l | xargs)
     [[ "$tmp_suid" -eq 0 ]] && add_result "perms" "SUID in /tmp" "PASS" "None" || \
                                 { add_result "perms" "SUID in /tmp" "FAIL" "$tmp_suid files!"; rem "Remove immediately"; }
+    rem "find /tmp -type f -perm -4000 -exec rm -f {} +"
 }
 
 # ──12. CONTAINER SECURITY ──
@@ -857,6 +1027,7 @@ audit_containers() {
     local socket=$(stat -c "%a" /var/run/docker.sock 2>/dev/null || echo "?")
     [[ "$socket" =~ ^(660|600)$ ]] && add_result "docker" "Socket Perms" "PASS" "$socket" || \
                                       add_result "docker" "Socket Perms" "WARN" "$socket"
+    rem "chmod 660 /var/run/docker.sock"
 
     local root_c=$(docker ps --format '{{.Names}}' 2>/dev/null | while read n; do
         local u=$(docker inspect --format '{{.Config.User}}' "$n" 2>/dev/null)
@@ -864,6 +1035,7 @@ audit_containers() {
     done | wc -l)
     [[ "$root_c" -eq 0 ]] && add_result "docker" "Root Containers" "PASS" "None" || \
                              add_result "docker" "Root Containers" "WARN" "$root_c as root"
+    rem "Use USER directive in Dockerfile"
 }
 
 # ──13. CLOUD METADATA ──
@@ -882,6 +1054,7 @@ audit_cloud() {
         local token=$(curl -s --max-time 2 -X PUT http://169.254.169.254/latest/api/token -H "X-aws-ec2-metadata-token-ttl-seconds: 300" 2>/dev/null)
         [[ -n "$token" ]] && add_result "cloud" "IMDSv2" "PASS" "Available" || \
                              { add_result "cloud" "IMDSv2" "WARN" "IMDSv1 only"; rem "Enable IMDSv2"; }
+    rem "Enable IMDSv2 on AWS instance"
     }
 }
 
@@ -896,12 +1069,14 @@ audit_logging() {
         add_result "logging" "Syslog" "PASS" "syslog-ng active"
     else
         add_result "logging" "Syslog" "WARN" "No syslog daemon"
+    rem "apt install rsyslog && systemctl enable --now rsyslog"
     fi
 
     # Auditd
     systemctl is-active --quiet auditd 2>/dev/null && \
         add_result "logging" "Audit Daemon" "PASS" "Active" || \
         { add_result "logging" "Audit Daemon" "WARN" "Not running"; rem "apt install auditd && systemctl enable --now auditd"; }
+    rem "apt install auditd && systemctl enable --now auditd"
 
     # Journal persistence
     if [[ -d /var/log/journal ]]; then
@@ -916,6 +1091,7 @@ audit_logging() {
         add_result "logging" "Log Rotation" "PASS" "Configured"
     else
         add_result "logging" "Log Rotation" "WARN" "Not configured"
+    rem "Configure /etc/logrotate.conf"
     fi
 }
 
@@ -926,17 +1102,20 @@ audit_misc() {
     # USB storage
     lsmod 2>/dev/null | grep -q "usb_storage" && \
         add_result "misc" "USB Storage" "WARN" "Loaded" || \
+    rem "echo 'blacklist usb-storage' >> /etc/modprobe.d/blacklist.conf"
         add_result "misc" "USB Storage" "PASS" "Not loaded"
 
     # File integrity
     (command -v aide &>/dev/null || command -v tripwire &>/dev/null) && \
         add_result "misc" "File Integrity" "PASS" "Installed" || \
         add_result "misc" "File Integrity" "WARN" "Not installed"
+    rem "apt install aide && aideinit"
 
     # Banner
     [[ -f /etc/issue.net ]] && [[ -s /etc/issue.net ]] && \
         add_result "misc" "Login Banner" "PASS" "Configured" || \
         add_result "misc" "Login Banner" "WARN" "Not configured"
+    rem "Configure /etc/issue.net"
 }
 
 # ═══════════════════════════════════════════════════════════════
