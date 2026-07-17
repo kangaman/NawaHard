@@ -145,9 +145,88 @@ get_sysctl() {
     sysctl -n "$1" 2>/dev/null || echo "N/A"
 }
 
+
+# ── Explanation lookup (static, no AI) ──
+get_explanation() {
+    local name="$1"
+    local status="$2"
+    case "$name" in
+        # System
+        "OS Version") echo "Versi OS yang sedang berjalan" ;;
+        "OS Support") echo "OS EOL tidak mendapat patch keamanan" ;;
+        "Kernel") echo "Kernel rentan bisa dieksploitasi untuk root" ;;
+        "Boot Loader") echo "Tanpa GRUB password, akses fisik bisa bypass" ;;
+        "Package Integrity") echo "File modifikasi bisa menandakan kompromi" ;;
+        "ASLR") echo "Randomisasi memori menyulitkan exploit" ;;
+        "Core Dumps") echo "Core dump bisa berisi data sensitif" ;;
+        "Time Sync") echo "Waktu tidak sinkron = masalah log & TLS" ;;
+        # SSH
+        "Root Login") echo "Root langsung = riskan jika password bocor" ;;
+        "Password Auth") echo "Password bisa di-brute force" ;;
+        "SSH Port") echo "Port 22 target utama scanner otomatis" ;;
+        "Empty Passwords") echo "Akun tanpa password bisa diakses siapa saja" ;;
+        "X11 Forwarding") echo "Bisa digunakan untuk keylogging" ;;
+        "Max Auth Tries") echo "Batas rendah memperlambat brute force" ;;
+        "Login Grace") echo "Terlalu lama = koneksi idle tetap terbuka" ;;
+        "Client Alive") echo "Keepalive deteksi koneksi zombie" ;;
+        "Access Restriction") echo "Membatasi user = kurangi attack surface" ;;
+        "Host Key Perms") echo "Permission salah = key theft risk" ;;
+        "Max Sessions") echo "Session berlebihan = potensi DoS" ;;
+        "Login Banner") echo "Banner peringatan untuk kepatuhan hukum" ;;
+        # Firewall
+        "UFW"|"Firewalld"|"nftables"|"Firewall") echo "Pertahanan pertama dari serangan jaringan" ;;
+        "IP Forwarding") echo "IP forward aktif = pivot attack risk" ;;
+        "ICMP Redirects") echo "Bisa menyerang routing table" ;;
+        "Source Routing") echo "Memungkinkan manipulasi jalur paket" ;;
+        "SYN Cookies") echo "Tanpa ini = rentan SYN flood DDoS" ;;
+        "Reverse Path") echo "Mencegah IP spoofing" ;;
+        "Broadcast ICMP") echo "Bisa digunakan untuk smurf attack" ;;
+        "IPv6 Redirects") echo "Bisa digunakan untuk MITM" ;;
+        # IPS
+        "Fail2ban"|"CrowdSec"|"IPS") echo "Auto-blokir IP brute force" ;;
+        # Auth
+        "Failed Logins (24h)") echo "Banyak gagal = indikasi brute force" ;;
+        "Sudo Logging") echo "Audit trail command root" ;;
+        "Password Policy") echo "Password lemah = crack dalam detik" ;;
+        "Account Lockout") echo "Blokir akun setelah percobaan gagal" ;;
+        "UID 0 Accounts") echo "Multiple UID 0 = backdoor root" ;;
+        "SUID Files") echo "SUID tidak lazim = privilege escalation" ;;
+        # Resources
+        "Disk") echo "Disk penuh = crash & data loss" ;;
+        "Memory") echo "RAM penuh = swap & performa turun" ;;
+        "CPU") echo "CPU tinggi = kemungkinan crypto mining" ;;
+        "Swap") echo "Swap mencegah OOM killer" ;;
+        "Inodes") echo "Inode habis = tidak bisa buat file baru" ;;
+        # Updates
+        "Reboot") echo "Kernel baru tidak aktif tanpa reboot" ;;
+        "Pending") echo "Update menambal vulnerability diketahui" ;;
+        "Auto Updates") echo "Patch otomatis = keamanan selalu terbaru" ;;
+        # Permissions
+        "World-Writable /etc") echo "File writable = bisa dimodifikasi attacker" ;;
+        "/etc/shadow") echo "Berisi hash password, harus terlindungi" ;;
+        "/etc/passwd") echo "Info user, harus read-only" ;;
+        "SUID in /tmp") echo "SUID di /tmp hampir pasti malware" ;;
+        # Docker
+        "Socket Perms") echo "Docker socket = akses root ke host" ;;
+        "Root Containers") echo "Container root bisa escape ke host" ;;
+        "Privileged Mode") echo "Privileged = akses penuh ke host" ;;
+        # Logging
+        "Syslog") echo "Centralized logging untuk audit" ;;
+        "Audit Daemon") echo "Auditd catat semua aktivitas sistem" ;;
+        "Journal") echo "Persistent = log tidak hilang setelah reboot" ;;
+        "Log Rotation") echo "Mencegah disk penuh karena log" ;;
+        # Misc
+        "USB Storage") echo "USB bisa untuk exfiltrate data" ;;
+        "File Integrity") echo "Deteksi perubahan file sistem" ;;
+        *) echo "" ;;
+    esac
+}
+
 # ── Helper: Add result ──
 add_result() {
     local category="$1" name="$2" status="$3" message="$4" remediation="${5:-}"
+    local explanation
+    explanation=$(get_explanation "$name" "$status")
     TOTAL=$((TOTAL + 1))
 
     case "$status" in
@@ -174,6 +253,9 @@ add_result() {
             INFO) echo -e "  ${B}ℹ${N} ${name} ${DIM}— ${message}${N}" ;;
             SKIP) echo -e "  ${DIM}○ ${name} — ${message}${N}" ;;
         esac
+        if [[ -n "$explanation" ]] && [[ "$status" =~ ^(WARN|FAIL)$ ]]; then
+            echo -e "    ${DIM}ℹ️ ${explanation}${N}"
+        fi
     fi
 
     # Store for JSON
@@ -963,7 +1045,8 @@ td{padding:.5rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
 .b-pass{background:rgba(16,185,129,.12);color:var(--pass)}.b-warn{background:rgba(245,158,11,.12);color:var(--warn)}
 .b-fail{background:rgba(239,68,68,.12);color:var(--fail)}.b-info{background:rgba(59,130,246,.12);color:var(--info)}
 .b-skip{background:rgba(100,116,139,.12);color:var(--muted)}
-.rem{color:var(--muted);font-size:.72rem;margin-top:.2rem}
+.rem{color:var(--pass);font-size:.72rem;margin-top:.3rem;padding:.3rem .5rem;background:rgba(16,185,129,.06);border-left:2px solid var(--pass);border-radius:4px}
+.expl{color:var(--muted);font-size:.72rem;margin-top:.2rem;padding:.2rem .4rem;background:rgba(59,130,246,.04);border-left:2px solid var(--info);border-radius:4px}
 footer{text-align:center;padding:2rem 0;color:#334155;font-size:.72rem;border-top:1px solid var(--border);margin-top:2rem}
 @media(max-width:640px){.cards{grid-template-columns:repeat(2,1fr)}body{padding:1rem}}
 </style>
@@ -1003,8 +1086,10 @@ EOF
         local bc="b-info"
         case "$status" in PASS) bc="b-pass";; WARN) bc="b-warn";; FAIL) bc="b-fail";; SKIP) bc="b-skip";; esac
 
+        local explanation=$(echo "$entry" | python3 -c "import sys,json;print(json.load(sys.stdin).get('explanation',''))" 2>/dev/null)
         echo "<tr><td><span class='badge ${bc}'>${status}</span></td><td>${name}</td><td>${msg}" >> "$REPORT_HTML"
-        [[ -n "$remediation" ]] && echo "<div class='rem'>→ ${remediation}</div>" >> "$REPORT_HTML"
+        [[ -n "$explanation" ]] && echo "<div class='expl'>ℹ️ ${explanation}</div>" >> "$REPORT_HTML"
+        [[ -n "$remediation" ]] && echo "<div class='rem'>🔧 ${remediation}</div>" >> "$REPORT_HTML"
         echo "</td></tr>" >> "$REPORT_HTML"
     done
 
@@ -1044,9 +1129,11 @@ EOF
             echo "━━━ ${cat^^} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >> "$REPORT_TXT"
         fi
 
+        local explanation=$(echo "$entry" | python3 -c "import sys,json;print(json.load(sys.stdin).get('explanation',''))" 2>/dev/null)
         echo "  [${status}] ${name}" >> "$REPORT_TXT"
         echo "      ${msg}" >> "$REPORT_TXT"
-        [[ -n "$remediation" ]] && echo "      → ${remediation}" >> "$REPORT_TXT"
+        [[ -n "$explanation" ]] && echo "      ℹ️ ${explanation}" >> "$REPORT_TXT"
+        [[ -n "$remediation" ]] && echo "      🔧 ${remediation}" >> "$REPORT_TXT"
     done
 
     cat >> "$REPORT_TXT" <<EOF
