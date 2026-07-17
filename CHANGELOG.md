@@ -34,3 +34,13 @@ All notable changes to NawaHard will be documented in this file.
 13. Cloud Metadata (3 checks)
 14. Logging & Auditing (4 checks)
 15. Miscellaneous (3 checks)
+
+## [1.0.1] - 2026-07-17
+
+### Fixed
+- VERSION variable being overwritten by /etc/os-release
+- Added Kali Linux to OS detection
+- Corrected branch name in README URLs (master, not main)
+
+### Added
+- Kali Linux support in README

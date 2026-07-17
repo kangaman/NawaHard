@@ -40,6 +40,7 @@ NawaHard is a comprehensive Linux VPS security audit tool that performs **167+ s
 | **AlmaLinux** | 8, 9 | ✅ Full support |
 | **Fedora** | 35+ | ✅ Full support |
 | **Amazon Linux** | 2, 2023 | ✅ Full support |
+| **Kali Linux** | 2023+ | ✅ Full support (Debian-based) |
 | **Arch Linux** | Rolling | ⚠️ Basic support |
 
 ---

@@ -35,7 +35,8 @@
 set -uo pipefail
 
 # ── Version ──
-VERSION="1.0.0"
+SCRIPT_VERSION="1.0.0"
+VERSION="$SCRIPT_VERSION"
 SCRIPT_NAME="NawaHard"
 
 # ── Detect OS ──
@@ -53,7 +54,7 @@ detect_os() {
 
     # Normalize
     case "$OS_ID" in
-        ubuntu|debian|linuxmint|pop)    OS_FAMILY="debian" ;;
+        ubuntu|debian|linuxmint|pop|kali)    OS_FAMILY="debian" ;;
         centos|rhel|rocky|almalinux|ol) OS_FAMILY="rhel" ;;
         fedora)                         OS_FAMILY="fedora" ;;
         amzn)                           OS_FAMILY="amzn" ;;
@@ -1062,6 +1063,7 @@ main() {
     [[ "$EUID" -ne 0 ]] && { echo -e "${R}Error: Run as root (sudo $0)${N}" >&2; exit 1; }
 
     detect_os
+    VERSION="$SCRIPT_VERSION"
     setup_colors
 
     if [[ "$OPT_QUIET" -eq 0 ]]; then
