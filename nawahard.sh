@@ -532,12 +532,9 @@ audit_auth() {
     # Failed logins
     local failed=0
     if [[ -f /var/log/auth.log ]]; then
-        failed=$(grep -c "Failed password" /var/log/auth.log 2>/dev/null || true)
-    elif command -v journalctl &>/dev/null; then
-        failed=$(journalctl -u ssh --since "24 hours ago" 2>/dev/null | grep -c "Failed password" || true)
+        failed=$(grep -i "failed password" /var/log/auth.log 2>/dev/null | wc -l | xargs)
     fi
-    # Robust numeric coercion: fallback to0 if empty/non-numeric
-    if ! [[ "$failed" =~ ^[0-9]+$ ]]; then
+    if [[ -z "$failed" ]] || ! [[ "$failed" =~ ^[0-9]+$ ]]; then
         failed=0
     fi
     if [[ "$failed" -lt 10 ]]; then
