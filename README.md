@@ -50,7 +50,7 @@ NawaHard is a comprehensive Linux VPS security audit tool that performs **167+ s
 
 ```bash
 # Download
-wget https://raw.githubusercontent.com/kangaman/NawaHard/main/nawahard.sh
+wget https://raw.githubusercontent.com/kangaman/NawaHard/master/nawahard.sh
 
 # Make executable
 chmod +x nawahard.sh
@@ -62,7 +62,7 @@ sudo ./nawahard.sh
 ### One-liner
 
 ```bash
-curl -sL https://raw.githubusercontent.com/kangaman/NawaHard/main/nawahard.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/kangaman/NawaHard/master/nawahard.sh | sudo bash
 ```
 
 ---
