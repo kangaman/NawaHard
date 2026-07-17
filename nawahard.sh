@@ -248,14 +248,14 @@ audit_system() {
 
     # Package integrity
     if command -v debsums &>/dev/null; then
-        local modified=$(debsums -c 2>/dev/null | wc -l)
+        local modified=$(debsums -c 2>/dev/null | wc -l | xargs)
         if [[ "$modified" -eq 0 ]]; then
             add_result "system" "Package Integrity" "PASS" "All packages verified"
         else
             add_result "system" "Package Integrity" "WARN" "$modified modified files"
         fi
     elif command -v rpm &>/dev/null; then
-        local modified=$(rpm -Va 2>/dev/null | grep "^..5" | wc -l)
+        local modified=$(rpm -Va 2>/dev/null | grep "^..5" | wc -l | xargs)
         if [[ "$modified" -eq 0 ]]; then
             add_result "system" "Package Integrity" "PASS" "All packages verified"
         else
@@ -578,12 +578,12 @@ audit_auth() {
     fi
 
     # Empty passwords
-    local empty=$(awk -F: '($2 == "" || $2 == "!") && $1 != "root" {print $1}' /etc/shadow 2>/dev/null | wc -l)
+    local empty=$(awk -F: '($2 == "" || $2 == "!") && $1 != "root" {print $1}' /etc/shadow 2>/dev/null | wc -l | xargs)
     [[ "$empty" -eq 0 ]] && add_result "auth" "Empty Passwords" "PASS" "None found" \
                           || { add_result "auth" "Empty Passwords" "FAIL" "$empty accounts"; rem "Set passwords or lock accounts"; }
 
     # SUID files
-    local suid=$(find / -type f -perm -4000 2>/dev/null | grep -v -E '^/(usr/(bin|sbin|lib|libexec)|bin|sbin)/' | wc -l)
+    local suid=$(find / -type f -perm -4000 2>/dev/null | grep -v -E '^/(usr/(bin|sbin|lib|libexec)|bin|sbin)/' | wc -l | xargs)
     [[ "$suid" -eq 0 ]] && add_result "auth" "SUID Files" "PASS" "No unusual SUID" \
                          || add_result "auth" "SUID Files" "WARN" "$suid unusual SUID files"
 }
@@ -650,7 +650,7 @@ audit_services() {
 
     # Docker
     if command -v docker &>/dev/null && systemctl is-active --quiet docker 2>/dev/null; then
-        local containers=$(docker ps -q 2>/dev/null | wc -l)
+        local containers=$(docker ps -q 2>/dev/null | wc -l | xargs)
         add_result "services" "Docker" "INFO" "$containers containers"
     fi
 }
@@ -670,7 +670,7 @@ audit_ports() {
     fi
 
     local port_list=$(echo "$ports" | tr '\n' ',' | sed 's/,$//')
-    local port_count=$(echo "$ports" | wc -l)
+    local port_count=$(echo "$ports" | wc -l | xargs)
 
     [[ "$port_count" -lt 10 ]] && add_result "ports" "Port Count" "PASS" "$port_count: $port_list" || \
     [[ "$port_count" -lt 20 ]] && add_result "ports" "Port Count" "WARN" "$port_count open" || \
@@ -741,7 +741,7 @@ audit_updates() {
 audit_permissions() {
     print_section "File Permissions" "📂"
 
-    local ww=$(find /etc -type f -perm -002 2>/dev/null | wc -l)
+    local ww=$(find /etc -type f -perm -002 2>/dev/null | wc -l | xargs)
     [[ "$ww" -eq 0 ]] && add_result "perms" "World-Writable /etc" "PASS" "None" || \
                          { add_result "perms" "World-Writable /etc" "FAIL" "$ww files"; rem "find /etc -type f -perm -002 -exec chmod o-w {} +"; }
 
@@ -753,7 +753,7 @@ audit_permissions() {
     [[ "$passwd" == "644" ]] && add_result "perms" "/etc/passwd" "PASS" "644" || \
                                 add_result "perms" "/etc/passwd" "WARN" "$passwd"
 
-    local tmp_suid=$(find /tmp /var/tmp -type f \( -perm -4000 -o -perm -2000 \) 2>/dev/null | wc -l)
+    local tmp_suid=$(find /tmp /var/tmp -type f \( -perm -4000 -o -perm -2000 \) 2>/dev/null | wc -l | xargs)
     [[ "$tmp_suid" -eq 0 ]] && add_result "perms" "SUID in /tmp" "PASS" "None" || \
                                 { add_result "perms" "SUID in /tmp" "FAIL" "$tmp_suid files!"; rem "Remove immediately"; }
 }
