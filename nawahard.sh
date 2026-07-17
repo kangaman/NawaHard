@@ -35,7 +35,7 @@
 set -uo pipefail
 
 # ── Version ──
-SCRIPT_VERSION="1.0.0"
+SCRIPT_VERSION="2.0.0"
 VERSION="$SCRIPT_VERSION"
 SCRIPT_NAME="NawaHard"
 
