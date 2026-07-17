@@ -109,98 +109,12 @@ sudo ./nawahard.sh --no-color
 ## 📸 Screenshot
 
 ### Console Output
-```
-🛡 NawaHard v2.0.0 — Linux VPS Security Audit
-OS: Ubuntu 24.04.4 LTS
-Started: Thu Jul 17 13:17:55 WIB 2026
 
-🖥 System Foundation
-────────────────────────────────────────────────────────────
-  i OS Version — Ubuntu 24.04.4 LTS
-  ✓ OS Support — Ubuntu 24.04 — supported
-  i Kernel — 6.8.0-124-generic
-  ⚠ Boot Loader — No GRUB password
-    i️ Tanpa GRUB password, akses fisik bisa bypass
-    → Set GRUB password: grub2-setpassword
-
-🔑 SSH Configuration
-────────────────────────────────────────────────────────────
-  ✗ Root Login — Enabled (yes)
-    i️ Akses root langsung memudahkan attacker
-    → Set 'PermitRootLogin no' in /etc/ssh/sshd_config
-  ✗ Password Auth — Enabled
-    i️ Password bisa di-brute force
-    → Set 'PasswordAuthentication no'
-  ⚠ SSH Port — Default port22
-    i️ Port 22 target utama scanner otomatis
-    → Change to non-standard port
-
-🛡 Firewall & Network
-────────────────────────────────────────────────────────────
-  ✗ nftables — No rules
-    i️ Pertahanan pertama dari serangan jaringan
-    → Configure nftables rules
-  ✓ SYN Cookies — Enabled
-  ⚠ IP Forwarding — Enabled
-    i️ IP forward aktif = pivot attack risk
-    → sysctl -w net.ipv4.ip_forward=0
-
-════════════════════════════════════════════════════════════
-  AUDIT COMPLETE
-════════════════════════════════════════════════════════════
-
-  Security Score: 43/100
-
-  ✓ Passed:   34
-  ⚠ Warnings: 25
-  ✗ Failed:   19
-  i Info:      10
-  ○ Skipped:   1
-  ─────────────────────
-  Total:      89
-
-  Reports:
-    HTML: /tmp/nawahard/nawahard-20260717_131755.html
-    JSON: /tmp/nawahard/nawahard-20260717_131755.json
-    TXT:  /tmp/nawahard/nawahard-20260717_131755.txt
-```
+![NawaHard Console Output](screenshoot.png)
 
 ### HTML Dashboard
-```
-┌─────────────────────────────────────────────────────────────┐
-│  🛡️ NawaHard Security Audit                                │
-│  Ubuntu 24.04.4 LTS — VM-13-98-ubuntu — Jul 17, 2026      │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐             │
-│  │  43  │ │  34  │ │  25  │ │  19  │ │  89  │             │
-│  │Score │ │Passed│ │Warn  │ │Failed│ │Total │             │
-│  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘             │
-│                                                             │
-│  SYSTEM FOUNDATION                                          │
-│  ┌──────────┬─────────────┬─────────────────────────────┐  │
-│  │ Status   │ Check       │ Details                      │  │
-│  ├──────────┼─────────────┼─────────────────────────────┤  │
-│  │ INFO     │ OS Version  │ Ubuntu 24.04.4 LTS          │  │
-│  │ PASS     │ ASLR        │ Full randomization          │  │
-│  │ WARN     │ Boot Loader │ No GRUB password            │  │
-│  │          │             │ ℹ️ Tanpa GRUB password...    │  │
-│  │          │             │ 🔧 Set GRUB password...      │  │
-│  └──────────┴─────────────┴─────────────────────────────┘  │
-│                                                             │
-│  SSH CONFIGURATION                                          │
-│  ┌──────────┬─────────────┬─────────────────────────────┐  │
-│  │ FAIL     │ Root Login  │ Enabled (yes)               │  │
-│  │          │             │ ℹ️ Akses root langsung...    │  │
-│  │          │             │ 🔧 Set 'PermitRootLogin no'  │  │
-│  │ FAIL     │ Password    │ Enabled                     │  │
-│  │          │             │ ℹ️ Password bisa di-brute... │  │
-│  │          │             │ 🔧 Set 'PasswordAuth no'     │  │
-│  └──────────┴─────────────┴─────────────────────────────┘  │
-│                                                             │
-│  Footer: NawaHard v2.0.0 — Generated Jul 17, 2026         │
-└─────────────────────────────────────────────────────────────┘
-```
+
+![NawaHard HTML Dashboard](screenshoot%20hasil.png)
 
 ---
 
