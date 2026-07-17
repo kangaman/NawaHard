@@ -583,7 +583,7 @@ audit_auth() {
                           || { add_result "auth" "Empty Passwords" "FAIL" "$empty accounts"; rem "Set passwords or lock accounts"; }
 
     # SUID files
-    local suid=$(timeout 15 find / -type f -perm -4000 2>/dev/null | grep -v -E '^/(usr/(bin|sbin|lib|libexec)|bin|sbin)/' | wc -l | xargs)
+    local suid=$(timeout 5 find / -type f -perm -4000 2>/dev/null | grep -v -E '^/(usr/(bin|sbin|lib|libexec)|bin|sbin)/' | wc -l | xargs)
     [[ "$suid" -eq 0 ]] && add_result "auth" "SUID Files" "PASS" "No unusual SUID" \
                          || add_result "auth" "SUID Files" "WARN" "$suid unusual SUID files"
 }
