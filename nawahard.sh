@@ -536,7 +536,7 @@ audit_auth() {
     elif command -v journalctl &>/dev/null; then
         failed=$(journalctl -u ssh --since "24 hours ago" 2>/dev/null | grep -c "Failed password" || echo "0")
     fi
-    failed=$(echo "${failed:-0}" | tr -d "[:space:]"); failed=$((10#${failed:-0}))
+    failed=$(echo "${failed:-0}" | xargs | head -1); failed=$((10#$failed))
     if [[ "$failed" -lt 10 ]]; then
         add_result "auth" "Failed Logins (24h)" "PASS" "$failed attempts"
     elif [[ "$failed" -lt 50 ]]; then
